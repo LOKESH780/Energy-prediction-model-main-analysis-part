@@ -22,7 +22,6 @@ df.rename(columns={
     'Electricity from renewables (TWh)': 'Electricity_from_renewables_TWh',
     'Low-carbon electricity (% electricity)': 'Low_carbon_electricity_electricity',
     'Primary energy consumption per capita (kWh/person)': 'Primary_energy_consumption_per_capita_kWh_person',
-    'Energy intensity level of primary energy (MJ/$2017 PPP GDP)': 'Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP',
     'CO2 emissions (kT) (by country)': 'Value_co2_emissions_kt_by_country',
     'Renewables (equivalent primary energy)': 'Renewables_equivalent_primary_energy',
     'GDP growth (annual %)': 'gdp_growth',
@@ -45,7 +44,7 @@ col4, col5, col6 = st.columns(3)
 with col4:
     st.metric("Average GDP per Capita", f"{df['gdp_per_capita'].mean()/1000:.2f}K")
 with col5:
-    st.metric("Average Energy Intensity", f"{df['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f}")
+    st.metric("Average Renewable Capacity per Capita", f"{df['Renewable_electricity_generating_capacity_per_capita'].mean():.2f}")
 with col6:
     total_countries = df['Entity'].nunique()
     st.metric("Total Countries", f"{total_countries}")
@@ -73,8 +72,11 @@ else:
 # Dynamic scatter plot: Select any 2 features
 st.subheader("💡 Explore Relationships Between Features")
 numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
-x_col = st.selectbox("Select X-axis", numeric_cols, index=numeric_cols.index("gdp_per_capita") if "gdp_per_capita" in numeric_cols else 0)
-y_col = st.selectbox("Select Y-axis", numeric_cols, index=numeric_cols.index("Primary_energy_consumption_per_capita_kWh_person") if "Primary_energy_consumption_per_capita_kWh_person" in numeric_cols else 1)
+
+with st.sidebar:
+    st.markdown("### 🔽 Select Features")
+    x_col = st.selectbox("Select X-axis", numeric_cols, index=numeric_cols.index("gdp_per_capita") if "gdp_per_capita" in numeric_cols else 0)
+    y_col = st.selectbox("Select Y-axis", numeric_cols, index=numeric_cols.index("Primary_energy_consumption_per_capita_kWh_person") if "Primary_energy_consumption_per_capita_kWh_person" in numeric_cols else 1)
 
 fig2, ax2 = plt.subplots()
 sns.scatterplot(

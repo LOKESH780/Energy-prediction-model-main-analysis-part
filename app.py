@@ -57,4 +57,13 @@ if uploaded_file:
         'gdp_per_capita': 'mean'
     }).sort_values('gdp_per_capita', ascending=False).head(5).reset_index()
 
-    fig, ax = plt.subplots(figsize=(12,
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.bar(top5['Entity'], top5['gdp_per_capita'], label='GDP per Capita', color='#1f77b4')
+    ax.bar(top5['Entity'], top5['gdp_growth'], label='GDP Growth', color='#ff7f0e', alpha=0.7)
+    ax.set_ylabel("Value")
+    ax.set_title("GDP per Capita and GDP Growth (Top 5 Countries)")
+    ax.legend()
+    st.pyplot(fig)
+
+else:
+    st.info("👆 Please upload a CSV file to start analysis.")

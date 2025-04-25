@@ -47,7 +47,7 @@ col4, col5, col6 = st.columns(3)
 with col4:
     st.metric("Average GDP per Capita", f"{df['gdp_per_capita'].mean()/1000:.2f}K")
 with col5:
-    st.metric("Average Renewable Capacity per Capita", f"{df['Renewable_electricity_generating_capacity_per_capita'].mean():.2f}")
+    st.metric("Average Energy Intensity", f"{df['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f}")
 with col6:
     total_countries = df['Entity'].nunique()
     st.metric("Total Countries", f"{total_countries}")

@@ -39,13 +39,13 @@ if uploaded_file:
     st.subheader("🔍 Correlation Heatmap")
     numeric_df = df.select_dtypes(include=['float64', 'int64'])
     corr = numeric_df.corr()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
+    fig, ax = plt.subplots(figsize=(14, 8))
+    sns.heatmap(corr, annot=False, cmap="coolwarm", ax=ax)
     st.pyplot(fig)
 
     st.markdown("---")
 
-    # Line chart for energy trend
+    # Energy Consumption Trend
     st.subheader("📈 Energy Consumption Over Years")
     if 'Year' in df.columns:
         energy_trend = df.groupby('Year')["Primary_energy_consumption_per_capita_kWh_person"].mean().reset_index()
@@ -53,19 +53,23 @@ if uploaded_file:
     else:
         st.warning("⚠️ 'Year' column not found in dataset.")
 
-    # GDP vs Energy Scatter Plot
-    st.subheader("💡 GDP vs Energy Consumption")
+    # Dynamic scatter plot: Select any 2 features
+    st.subheader("💡 Explore Relationships Between Features")
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+    x_col = st.selectbox("Select X-axis", numeric_cols, index=numeric_cols.index("gdp_per_capita") if "gdp_per_capita" in numeric_cols else 0)
+    y_col = st.selectbox("Select Y-axis", numeric_cols, index=numeric_cols.index("Primary_energy_consumption_per_capita_kWh_person") if "Primary_energy_consumption_per_capita_kWh_person" in numeric_cols else 1)
+
     fig2, ax2 = plt.subplots()
     sns.scatterplot(
         data=df,
-        x="gdp_per_capita",
-        y="Primary_energy_consumption_per_capita_kWh_person",
-        hue="Access_to_electricity_of_population",
+        x=x_col,
+        y=y_col,
+        hue="Access_to_electricity_of_population" if "Access_to_electricity_of_population" in df.columns else None,
         palette="viridis",
         ax=ax2
     )
-    ax2.set_xlabel("GDP per Capita")
-    ax2.set_ylabel("Energy Consumption per Capita")
+    ax2.set_xlabel(x_col)
+    ax2.set_ylabel(y_col)
     st.pyplot(fig2)
 
 else:

@@ -77,8 +77,13 @@ st.subheader("💡 Explore Relationships Between Features")
 numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
 
 with st.sidebar:
-    st.markdown("### 🔽 Select Features")
-    x_col = st.selectbox("Select X-axis", numeric_cols, index=numeric_cols.index("gdp_per_capita") if "gdp_per_capita" in numeric_cols else 0)
+    st.markdown("### 🔽 Filter Data")
+    if 'Year' in df.columns:
+        selected_year = st.selectbox("Select Year", sorted(df['Year'].dropna().unique()))
+        df = df[df['Year'] == selected_year]
+    if 'Entity' in df.columns:
+        selected_entity = st.selectbox("Select Country/Entity", sorted(df['Entity'].dropna().unique()))
+        df = df[df['Entity'] == selected_entity] if "gdp_per_capita" in numeric_cols else 0)
     y_col = st.selectbox("Select Y-axis", numeric_cols, index=numeric_cols.index("Primary_energy_consumption_per_capita_kWh_person") if "Primary_energy_consumption_per_capita_kWh_person" in numeric_cols else 1)
 
 fig2, ax2 = plt.subplots()

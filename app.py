@@ -7,7 +7,7 @@ st.set_page_config(page_title="Energy Data Analysis", layout="wide")
 st.title("📊 Global Energy Analysis Dashboard")
 
 # Load the CSV directly from file
-file_path = "sample_21_columns_energy_data.csv"
+file_path = "global-data-on-sustainable-energy.csv"
 df = pd.read_csv(file_path)
 
 # Rename columns for easier access in code

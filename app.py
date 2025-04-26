@@ -12,7 +12,7 @@ st.title("🌍 Global Energy Consumption Analysis Dashboard")
 file_path = "global-data-on-sustainable-energy.csv"
 df = pd.read_csv(file_path)
 
-# Rename columns
+# Rename columns for easier access
 df.rename(columns={
     'Access to electricity (% of population)': 'Access_to_electricity_of_population',
     'Access to clean fuels for cooking (% of population)': 'Access_to_clean_fuels_for_cooking',
@@ -62,7 +62,8 @@ st.markdown("---")
 st.subheader("📈 Primary Energy Consumption Over the Years")
 energy_trend = df.groupby('Year')["Primary_energy_consumption_per_capita_kWh_person"].mean().reset_index()
 fig_line = px.line(energy_trend, x="Year", y="Primary_energy_consumption_per_capita_kWh_person",
-                   labels={"Primary_energy_consumption_per_capita_kWh_person": "Avg Energy Consumption (kWh/person)"})
+                   labels={"Primary_energy_consumption_per_capita_kWh_person": "Avg Energy Consumption (kWh/person)"},
+                   title="Global Average Energy Consumption Over Years")
 st.plotly_chart(fig_line, use_container_width=True)
 
 # Choropleth Map - Access to Electricity
@@ -74,7 +75,7 @@ fig_map = px.choropleth(
     locationmode="country names",
     color="Access_to_electricity_of_population",
     color_continuous_scale="YlGnBu",
-    title=f"Access to Electricity in {selected_year}",
+    title=f"Access to Electricity by Country in {selected_year}",
     labels={'Access_to_electricity_of_population':'Access to Electricity (%)'}
 )
 st.plotly_chart(fig_map, use_container_width=True)
@@ -96,6 +97,12 @@ st.plotly_chart(fig_bar, use_container_width=True)
 
 # Scatter Plot - GDP vs Energy
 st.subheader("💡 GDP vs Energy Consumption")
+
+# Fill NaNs with 0 for smooth plotting
+df["Access_to_electricity_of_population"] = df["Access_to_electricity_of_population"].fillna(0)
+df["gdp_per_capita"] = df["gdp_per_capita"].fillna(0)
+df["Primary_energy_consumption_per_capita_kWh_person"] = df["Primary_energy_consumption_per_capita_kWh_person"].fillna(0)
+
 fig_scatter = px.scatter(
     df,
     x="gdp_per_capita",

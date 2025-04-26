@@ -22,7 +22,7 @@ df.rename(columns={
     'Electricity from renewables (TWh)': 'Electricity_from_renewables_TWh',
     'Low-carbon electricity (% electricity)': 'Low_carbon_electricity_electricity',
     'Primary energy consumption per capita (kWh/person)': 'Primary_energy_consumption_per_capita_kWh_person',
-    'Energy intensity level of primary energy (MJ per $2017 PPP GDP)': 'Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP',
+    'Energy intensity level of primary energy (MJ/$2017 PPP GDP)': 'Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP',
     'CO2 emissions (kT) (by country)': 'Value_co2_emissions_kt_by_country',
     'Renewables (equivalent primary energy)': 'Renewables_equivalent_primary_energy',
     'GDP growth (annual %)': 'gdp_growth',

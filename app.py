@@ -84,6 +84,7 @@ with tabs[2]:
 # --- Tab 4: CO2 Emissions Map ---
 with tabs[3]:
     st.header("🌎 CO₂ Emissions by Country")
+    df_year["Value_co2_emissions_kt_by_country"] = df_year["Value_co2_emissions_kt_by_country"].fillna(0)
     fig_map = px.scatter_geo(
         df_year,
         locations="Entity",

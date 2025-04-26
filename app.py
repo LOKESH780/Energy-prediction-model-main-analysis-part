@@ -1,16 +1,18 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Energy Data Analysis", layout="wide")
-st.title("📊 Global Energy Analysis Dashboard")
+# Page settings
+st.set_page_config(page_title="Global Energy Dashboard", layout="wide")
+st.title("🌍 Global Energy Consumption Analysis Dashboard")
 
-# Load the CSV directly from file
+# Load data
 file_path = "global-data-on-sustainable-energy.csv"
 df = pd.read_csv(file_path)
 
-# Rename columns for easier access in code
+# Rename columns
 df.rename(columns={
     'Access to electricity (% of population)': 'Access_to_electricity_of_population',
     'Access to clean fuels for cooking (% of population)': 'Access_to_clean_fuels_for_cooking',
@@ -31,68 +33,88 @@ df.rename(columns={
     'Land area (sq. km)': 'Land_Area_Km2'
 }, inplace=True)
 
-# Sidebar Filters
-with st.sidebar:
-    st.markdown("### 🔽 Filter Data")
-    if 'Year' in df.columns:
-        selected_year = st.selectbox("Select Year", sorted(df['Year'].dropna().unique()))
-        df = df[df['Year'] == selected_year]
-    if 'Entity' in df.columns:
-        selected_entity = st.selectbox("Select Country/Entity", sorted(df['Entity'].dropna().unique()))
-        df = df[df['Entity'] == selected_entity]
+# Sidebar filters
+st.sidebar.header("🔎 Filter the Data")
+year_options = df['Year'].dropna().unique()
+entity_options = df['Entity'].dropna().unique()
 
-# KPIs Section
-st.header("📌 Business KPIs")
-col1, col2, col3 = st.columns(3)
+selected_year = st.sidebar.selectbox("Select Year", sorted(year_options), index=0)
+selected_entity = st.sidebar.selectbox("Select Country/Entity", sorted(entity_options), index=0)
+
+# Apply filters
+filtered_df = df[(df['Year'] == selected_year) & (df['Entity'] == selected_entity)]
+
+# KPIs
+st.header("📌 Key Business Indicators")
+col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Average Access to Electricity", f"{df['Access_to_electricity_of_population'].mean():.2f}")
+    st.metric("Access to Electricity (%)", f"{filtered_df['Access_to_electricity_of_population'].mean():.2f}")
 with col2:
-    st.metric("Average Renewable Share", f"{df['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}")
+    st.metric("GDP per Capita ($)", f"{filtered_df['gdp_per_capita'].mean():,.2f}")
 with col3:
-    st.metric("Total CO₂ Emissions", f"{df['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M")
-
-col4, col5, col6 = st.columns(3)
+    st.metric("CO₂ Emissions (kT)", f"{filtered_df['Value_co2_emissions_kt_by_country'].sum():,.0f}")
 with col4:
-    st.metric("Average GDP per Capita", f"{df['gdp_per_capita'].mean()/1000:.2f}K")
-with col5:
-    st.metric("Average Energy Intensity", f"{df['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f}")
-with col6:
-    total_countries = df['Entity'].nunique()
-    st.metric("Total Countries", f"{total_countries}")
+    st.metric("Renewable Energy Share (%)", f"{filtered_df['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}")
+
+st.markdown("---")
+
+# Line Chart - Energy Consumption Over Years
+st.subheader("📈 Primary Energy Consumption Over the Years")
+energy_trend = df.groupby('Year')["Primary_energy_consumption_per_capita_kWh_person"].mean().reset_index()
+fig_line = px.line(energy_trend, x="Year", y="Primary_energy_consumption_per_capita_kWh_person",
+                   labels={"Primary_energy_consumption_per_capita_kWh_person": "Avg Energy Consumption (kWh/person)"})
+st.plotly_chart(fig_line, use_container_width=True)
+
+# Choropleth Map - Access to Electricity
+st.subheader("🗺️ Access to Electricity Across Countries")
+map_df = df[df['Year'] == selected_year]
+fig_map = px.choropleth(
+    map_df,
+    locations="Entity",
+    locationmode="country names",
+    color="Access_to_electricity_of_population",
+    color_continuous_scale="YlGnBu",
+    title=f"Access to Electricity in {selected_year}",
+    labels={'Access_to_electricity_of_population':'Access to Electricity (%)'}
+)
+st.plotly_chart(fig_map, use_container_width=True)
+
+st.markdown("---")
+
+# Bar Chart - Top 10 Renewable Share
+st.subheader("🌿 Top 10 Countries by Renewable Energy Share")
+top10 = df[df['Year'] == selected_year].nlargest(10, 'Renewable_energy_share_in_the_total_final_energy_consumption')
+fig_bar = px.bar(
+    top10,
+    x="Entity",
+    y="Renewable_energy_share_in_the_total_final_energy_consumption",
+    color="Renewable_energy_share_in_the_total_final_energy_consumption",
+    color_continuous_scale="viridis",
+    labels={"Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Energy Share (%)"},
+)
+st.plotly_chart(fig_bar, use_container_width=True)
+
+# Scatter Plot - GDP vs Energy
+st.subheader("💡 GDP vs Energy Consumption")
+fig_scatter = px.scatter(
+    df,
+    x="gdp_per_capita",
+    y="Primary_energy_consumption_per_capita_kWh_person",
+    size="Access_to_electricity_of_population",
+    color="Renewable_energy_share_in_the_total_final_energy_consumption",
+    hover_name="Entity",
+    title="GDP vs Energy Consumption",
+    color_continuous_scale="viridis",
+    size_max=50
+)
+st.plotly_chart(fig_scatter, use_container_width=True)
 
 st.markdown("---")
 
 # Correlation Heatmap
-st.subheader("🔍 Correlation Heatmap")
-numeric_df = df.select_dtypes(include=['float64', 'int64'])
-corr = numeric_df.corr()
-fig, ax = plt.subplots(figsize=(14, 8))
-sns.heatmap(corr, annot=False, cmap="coolwarm", ax=ax)
-st.pyplot(fig)
-
-st.markdown("---")
-
-# Energy Consumption Trend
-st.subheader("📈 Energy Consumption Over Years")
-if 'Year' in df.columns:
-    energy_trend = df.groupby('Year')["Primary_energy_consumption_per_capita_kWh_person"].mean().reset_index()
-    st.line_chart(energy_trend.rename(columns={"Primary_energy_consumption_per_capita_kWh_person": "Avg. Energy"}))
-else:
-    st.warning("⚠️ 'Year' column not found in dataset.")
-
-st.markdown("---")
-
-# Scatter Plot (Fixed X and Y)
-st.subheader("📊 GDP vs Energy Consumption (Fixed Axes)")
-fig2, ax2 = plt.subplots()
-sns.scatterplot(
-    data=df,
-    x="gdp_per_capita",
-    y="Primary_energy_consumption_per_capita_kWh_person",
-    hue="Access_to_electricity_of_population" if "Access_to_electricity_of_population" in df.columns else None,
-    palette="viridis",
-    ax=ax2
-)
-ax2.set_xlabel("GDP per Capita")
-ax2.set_ylabel("Primary Energy Consumption per Capita (kWh/person)")
-st.pyplot(fig2)
+st.subheader("📊 Correlation Heatmap of Features")
+numeric_features = df.select_dtypes(include=['float64', 'int64'])
+corr = numeric_features.corr()
+fig_corr, ax_corr = plt.subplots(figsize=(12,8))
+sns.heatmap(corr, cmap="coolwarm", ax=ax_corr)
+st.pyplot(fig_corr)

@@ -34,17 +34,21 @@ df.rename(columns=rename_dict, inplace=True)
 
 # Sidebar filters
 st.sidebar.header("🔽 Filters")
-years = sorted(df['Year'].dropna().unique())
-entities = sorted(df['Entity'].dropna().unique())
+years = ['All'] + sorted(df['Year'].dropna().unique().tolist())
+entities = ['All'] + sorted(df['Entity'].dropna().unique().tolist())
 
 selected_year = st.sidebar.selectbox("Select Year", years)
-selected_entity = st.sidebar.selectbox("Select Entity", ['All'] + entities)
+selected_entity = st.sidebar.selectbox("Select Entity", entities)
 
 # Tabs
 tabs = st.tabs(["Overview KPIs", "Energy Trends", "Top 10 Countries", "CO2 Emissions Map", "Correlation Heatmap"])
 
 # Filtered Data
-df_year = df[df['Year'] == selected_year]
+if selected_year != 'All':
+    df_year = df[df['Year'] == selected_year]
+else:
+    df_year = df.copy()
+
 if selected_entity != 'All':
     df_filtered = df_year[df_year['Entity'] == selected_entity]
 else:
@@ -60,11 +64,20 @@ with tabs[0]:
         st.metric("Average Renewable Share", f"{df_filtered['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
     with col3:
         st.metric("Total CO₂ Emissions", f"{df_filtered['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M kt")
-    col4, col5 = st.columns(2)
+
+    col4, col5, col6 = st.columns(3)
     with col4:
         st.metric("Average GDP per Capita", f"${df_filtered['gdp_per_capita'].mean():,.0f}")
     with col5:
         st.metric("Average Energy Intensity", f"{df_filtered['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f} MJ/$")
+    with col6:
+        st.metric("Average Renewable Capacity per Capita", f"{df_filtered['Renewable_electricity_generating_capacity_per_capita'].mean():.2f}")
+
+    col7, col8 = st.columns(2)
+    with col7:
+        st.metric("Average GDP Growth", f"{df_filtered['gdp_growth'].mean():.2f}%")
+    with col8:
+        st.metric("Average CO₂ Emissions per Capita", f"{(df_filtered['Value_co2_emissions_kt_by_country'].sum()/df_filtered.shape[0]):.2f} kt/person")
 
 # --- Tab 2: Energy Trends ---
 with tabs[1]:

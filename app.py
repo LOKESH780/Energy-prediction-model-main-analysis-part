@@ -40,12 +40,12 @@ entities = sorted(df['Entity'].dropna().unique())
 selected_year = st.sidebar.selectbox("Select Year", ['All'] + years)
 selected_entity = st.sidebar.selectbox("Select Entity", ['All'] + entities)
 
-# Filtered Data for KPIs and Map
-df_year = df.copy()
+# Filtered Data
+df_filtered = df.copy()
 if selected_year != 'All':
-    df_year = df_year[df_year['Year'] == selected_year]
+    df_filtered = df_filtered[df_filtered['Year'] == selected_year]
 if selected_entity != 'All':
-    df_year = df_year[df_year['Entity'] == selected_entity]
+    df_filtered = df_filtered[df_filtered['Entity'] == selected_entity]
 
 # Tabs
 tabs = st.tabs(["Overview KPIs", "Renewable Energy Insights", "CO2 Emissions Map", "Correlation Heatmap"])
@@ -55,18 +55,18 @@ with tabs[0]:
     st.header("📌 Business KPIs Overview")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Average Access to Electricity", f"{df_year['Access_to_electricity_of_population'].mean():.2f}%")
+        st.metric("Average Access to Electricity", f"{df_filtered['Access_to_electricity_of_population'].mean():.2f}%")
     with col2:
-        st.metric("Average Renewable Share", f"{df_year['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
+        st.metric("Average Renewable Share", f"{df_filtered['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
     with col3:
-        st.metric("Total CO₂ Emissions", f"{df_year['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M kt")
+        st.metric("Total CO₂ Emissions", f"{df_filtered['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M kt")
     col4, col5, col6 = st.columns(3)
     with col4:
-        st.metric("Average GDP per Capita", f"${df_year['gdp_per_capita'].mean():,.0f}")
+        st.metric("Average GDP per Capita", f"${df_filtered['gdp_per_capita'].mean():,.0f}")
     with col5:
-        st.metric("Average Energy Intensity", f"{df_year['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f} MJ/$")
+        st.metric("Average Energy Intensity", f"{df_filtered['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f} MJ/$")
     with col6:
-        total_countries = df_year['Entity'].nunique()
+        total_countries = df_filtered['Entity'].nunique()
         st.metric("Total Countries", f"{total_countries}")
 
 # --- Tab 2: Renewable Energy Insights ---
@@ -75,6 +75,7 @@ with tabs[1]:
 
     renewable_sum = df.groupby('Entity')['Renewable_energy_share_in_the_total_final_energy_consumption'].sum().reset_index()
     renewable_sum = renewable_sum.dropna(subset=['Renewable_energy_share_in_the_total_final_energy_consumption'])
+
     top_5 = renewable_sum.sort_values(by='Renewable_energy_share_in_the_total_final_energy_consumption', ascending=False).head(5)
     bottom_5 = renewable_sum.sort_values(by='Renewable_energy_share_in_the_total_final_energy_consumption', ascending=True).head(5)
 
@@ -82,47 +83,59 @@ with tabs[1]:
     with col1:
         st.subheader("Top 5 Countries by Renewable Energy Share (Total Sum)")
         fig_top = px.bar(
-            top_5, 
-            x='Entity', 
-            y='Renewable_energy_share_in_the_total_final_energy_consumption', 
+            top_5,
+            x='Entity',
+            y='Renewable_energy_share_in_the_total_final_energy_consumption',
             color='Entity',
             labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"},
             text_auto='.2s'
         )
-        fig_top.update_layout(yaxis_title="Total Renewable Energy Share (%)", xaxis_title="Country")
+        fig_top.update_layout(yaxis_title="Renewable Share (Sum %)", xaxis_title="Country")
         st.plotly_chart(fig_top, use_container_width=True)
+
     with col2:
         st.subheader("Bottom 5 Countries by Renewable Energy Share (Total Sum)")
         fig_bottom = px.bar(
-            bottom_5, 
-            x='Entity', 
-            y='Renewable_energy_share_in_the_total_final_energy_consumption', 
+            bottom_5,
+            x='Entity',
+            y='Renewable_energy_share_in_the_total_final_energy_consumption',
             color='Entity',
             labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"},
             text_auto='.2s'
         )
-        fig_bottom.update_layout(yaxis_title="Total Renewable Energy Share (%)", xaxis_title="Country")
+        fig_bottom.update_layout(yaxis_title="Renewable Share (Sum %)", xaxis_title="Country")
         st.plotly_chart(fig_bottom, use_container_width=True)
 
     st.subheader("📈 Renewable Energy Share Trend (Bottom 5 Countries)")
     bottom_entities = bottom_5['Entity'].tolist()
     trend_data = df[df['Entity'].isin(bottom_entities)]
+
     fig_area = px.area(
         trend_data,
         x='Year',
         y='Renewable_energy_share_in_the_total_final_energy_consumption',
         color='Entity',
-        labels={"Entity": "Country", "Year": "Year", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"}
+        labels={
+            "Entity": "Country",
+            "Year": "Year",
+            "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"
+        }
     )
-    fig_area.update_layout(yaxis_title="Renewable Share (%)", xaxis_title="Year")
+    fig_area.update_layout(
+        yaxis_tickformat='.4f',
+        hovermode="x unified",
+        yaxis_title="Renewable Share (%)",
+        xaxis_title="Year"
+    )
     st.plotly_chart(fig_area, use_container_width=True)
 
 # --- Tab 3: CO2 Emissions Map ---
 with tabs[2]:
     st.header("🌎 CO₂ Emissions by Country")
-    df_year['Value_co2_emissions_kt_by_country'] = df_year['Value_co2_emissions_kt_by_country'].fillna(0)
+    df_filtered['Value_co2_emissions_kt_by_country'] = df_filtered['Value_co2_emissions_kt_by_country'].fillna(0)
+
     fig_map = px.scatter_geo(
-        df_year,
+        df_filtered,
         locations="Entity",
         locationmode="country names",
         size="Value_co2_emissions_kt_by_country",
@@ -138,8 +151,8 @@ with tabs[2]:
 # --- Tab 4: Correlation Heatmap ---
 with tabs[3]:
     st.header("🧠 Correlation Heatmap")
-    numeric_cols = df_year.select_dtypes(include=['float64', 'int64']).columns
-    corr = df_year[numeric_cols].corr()
+    numeric_cols = df_filtered.select_dtypes(include=['float64', 'int64']).columns
+    corr = df_filtered[numeric_cols].corr()
     fig_corr, ax_corr = plt.subplots(figsize=(12, 8))
     sns.heatmap(corr, cmap='coolwarm', annot=False, ax=ax_corr)
     st.pyplot(fig_corr)

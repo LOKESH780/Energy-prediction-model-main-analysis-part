@@ -14,7 +14,7 @@ df = pd.read_csv("global-data-on-sustainable-energy.csv")
 rename_dict = {
     'Access to electricity (% of population)': 'Access_to_electricity_of_population',
     'Access to clean fuels for cooking (% of population)': 'Access_to_clean_fuels_for_cooking',
-    'Renewable-electricity-generating-capacity-per-capita': 'Renewable_electricity_generating_capacity_per_capita',
+    'Renewable electricity Generating Capacity per capita': 'Renewable_electricity_generating_capacity_per_capita',
     'Financial flows to developing countries (US$)': 'Financial_flows_to_developing_countries_US',
     'Renewable energy share in the total final energy consumption (%)': 'Renewable_energy_share_in_the_total_final_energy_consumption',
     'Electricity from fossil fuels (TWh)': 'Electricity_from_fossil_fuels_TWh',
@@ -34,21 +34,24 @@ df.rename(columns=rename_dict, inplace=True)
 
 # Sidebar filters
 st.sidebar.header("🔽 Filters")
-years = ['All'] + sorted(df['Year'].dropna().unique().tolist())
-entities = ['All'] + sorted(df['Entity'].dropna().unique().tolist())
+years = sorted(df['Year'].dropna().unique())
+entities = sorted(df['Entity'].dropna().unique())
 
 selected_year = st.sidebar.selectbox("Select Year", years)
-selected_entity = st.sidebar.selectbox("Select Entity", entities)
+selected_entity = st.sidebar.selectbox("Select Entity", ['All'] + entities)
 
 # Tabs
-tabs = st.tabs(["Overview KPIs", "Energy Trends", "Top 10 Countries", "CO2 Emissions Map", "Correlation Heatmap"])
+tabs = st.tabs([
+    "Overview KPIs", 
+    "Renewable Energy Analysis", 
+    "Energy Trends", 
+    "Top 10 Countries", 
+    "CO2 Emissions Map", 
+    "Correlation Heatmap"
+])
 
 # Filtered Data
-if selected_year != 'All':
-    df_year = df[df['Year'] == selected_year]
-else:
-    df_year = df.copy()
-
+df_year = df[df['Year'] == selected_year]
 if selected_entity != 'All':
     df_filtered = df_year[df_year['Entity'] == selected_entity]
 else:
@@ -64,7 +67,6 @@ with tabs[0]:
         st.metric("Average Renewable Share", f"{df_filtered['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
     with col3:
         st.metric("Total CO₂ Emissions", f"{df_filtered['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M kt")
-
     col4, col5, col6 = st.columns(3)
     with col4:
         st.metric("Average GDP per Capita", f"${df_filtered['gdp_per_capita'].mean():,.0f}")
@@ -73,36 +75,47 @@ with tabs[0]:
     with col6:
         st.metric("Average Renewable Capacity per Capita", f"{df_filtered['Renewable_electricity_generating_capacity_per_capita'].mean():.2f}")
 
-    col7, col8 = st.columns(2)
-    with col7:
-        st.metric("Average GDP Growth", f"{df_filtered['gdp_growth'].mean():.2f}%")
-    with col8:
-        st.metric("Average CO₂ Emissions per Capita", f"{(df_filtered['Value_co2_emissions_kt_by_country'].sum()/df_filtered.shape[0]):.2f} kt/person")
-
-# --- Tab 2: Energy Trends ---
+# --- Tab 2: Renewable Energy Analysis ---
 with tabs[1]:
+    st.header("🔋 Renewable Energy Analysis")
+    col1, col2 = st.columns(2)
+    with col1:
+        top5 = df_year.sort_values('Renewable_energy_share_in_the_total_final_energy_consumption', ascending=False).head(5)
+        fig_top5 = px.bar(top5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', title="Top 5 Countries by Renewable Energy Share")
+        st.plotly_chart(fig_top5, use_container_width=True)
+    with col2:
+        bottom5 = df_year.sort_values('Renewable_energy_share_in_the_total_final_energy_consumption', ascending=True).head(5)
+        fig_bottom5 = px.bar(bottom5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', title="Bottom 5 Countries by Renewable Energy Share")
+        st.plotly_chart(fig_bottom5, use_container_width=True)
+    st.markdown("### 📈 Renewable Energy Share Trend (Bottom 5 Countries)")
+    bottom5_entities = bottom5['Entity'].unique()
+    trend_data_bottom5 = df[df['Entity'].isin(bottom5_entities)]
+    fig_trend_bottom5 = px.area(trend_data_bottom5, x='Year', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity')
+    st.plotly_chart(fig_trend_bottom5, use_container_width=True)
+
+# --- Tab 3: Energy Trends ---
+with tabs[2]:
     st.header("📈 Energy Consumption Trends")
     if 'Year' in df.columns:
         trend_data = df.groupby('Year')['Primary_energy_consumption_per_capita_kWh_person'].mean().reset_index()
         fig_trend = px.line(trend_data, x='Year', y='Primary_energy_consumption_per_capita_kWh_person', title="Average Primary Energy Consumption Over Time")
         st.plotly_chart(fig_trend, use_container_width=True)
 
-# --- Tab 3: Top 10 Countries by Renewable Share ---
-with tabs[2]:
+# --- Tab 4: Top 10 Countries by Renewable Share ---
+with tabs[3]:
     st.header("🏆 Top 10 Countries by Renewable Energy Share")
     top_10 = df_year.sort_values('Renewable_energy_share_in_the_total_final_energy_consumption', ascending=False).head(10)
     fig_top = px.bar(top_10, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', title="Top 10 Renewable Energy Countries")
     st.plotly_chart(fig_top, use_container_width=True)
 
-# --- Tab 4: CO2 Emissions Map ---
-with tabs[3]:
+# --- Tab 5: CO2 Emissions Map ---
+with tabs[4]:
     st.header("🌎 CO₂ Emissions by Country")
-    df_year["Value_co2_emissions_kt_by_country"] = df_year["Value_co2_emissions_kt_by_country"].fillna(0)
     fig_map = px.scatter_geo(
         df_year,
         locations="Entity",
         locationmode="country names",
-        size="Value_co2_emissions_kt_by_country",
+        size=df_year['Value_co2_emissions_kt_by_country'].fillna(0),
         projection="natural earth",
         title="CO₂ Emissions (kt) by Country",
         size_max=50,
@@ -111,8 +124,8 @@ with tabs[3]:
     )
     st.plotly_chart(fig_map, use_container_width=True)
 
-# --- Tab 5: Correlation Heatmap ---
-with tabs[4]:
+# --- Tab 6: Correlation Heatmap ---
+with tabs[5]:
     st.header("🧠 Correlation Heatmap")
     numeric_cols = df_filtered.select_dtypes(include=['float64', 'int64']).columns
     corr = df_filtered[numeric_cols].corr()

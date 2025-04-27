@@ -93,7 +93,6 @@ with tabs[1]:
     st.plotly_chart(fig_area, use_container_width=True)
 
 # --- Tab 3: CO2 Emissions Map ---
-# --- Tab 3: CO2 Emissions Map ---
 with tabs[2]:
     st.header("🌎 CO₂ Emissions by Country")
 

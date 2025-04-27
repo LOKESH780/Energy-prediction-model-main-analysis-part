@@ -14,7 +14,7 @@ df = pd.read_csv("global-data-on-sustainable-energy.csv")
 rename_dict = {
     'Access to electricity (% of population)': 'Access_to_electricity_of_population',
     'Access to clean fuels for cooking (% of population)': 'Access_to_clean_fuels_for_cooking',
-    'Renewable electricity Generating Capacity per capita': 'Renewable_energy_share_in_the_total_final_energy_consumption',
+    'Renewable-electricity-generating-capacity-per-capita': 'Renewable_energy_share_in_the_total_final_energy_consumption',
     'Financial flows to developing countries (US$)': 'Financial_flows_to_developing_countries_US',
     'Electricity from fossil fuels (TWh)': 'Electricity_from_fossil_fuels_TWh',
     'Electricity from nuclear (TWh)': 'Electricity_from_nuclear_TWh',

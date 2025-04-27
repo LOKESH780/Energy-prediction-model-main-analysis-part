@@ -93,8 +93,13 @@ with tabs[1]:
     st.plotly_chart(fig_area, use_container_width=True)
 
 # --- Tab 3: CO2 Emissions Map ---
+# --- Tab 3: CO2 Emissions Map ---
 with tabs[2]:
     st.header("🌎 CO₂ Emissions by Country")
+
+    # Fill NaN with 0 for size (important!)
+    df_year['Value_co2_emissions_kt_by_country'] = df_year['Value_co2_emissions_kt_by_country'].fillna(0)
+
     fig_map = px.scatter_geo(
         df_year,
         locations="Entity",
@@ -107,6 +112,7 @@ with tabs[2]:
         color_continuous_scale="Reds"
     )
     st.plotly_chart(fig_map, use_container_width=True)
+
 
 # --- Tab 4: Correlation Heatmap ---
 with tabs[3]:

@@ -81,17 +81,17 @@ with tabs[1]:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Top 5 Countries by Renewable Energy Share (Total Sum)")
-        fig_top = px.bar(top_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity')
+        fig_top = px.bar(top_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
         st.plotly_chart(fig_top, use_container_width=True)
     with col2:
         st.subheader("Bottom 5 Countries by Renewable Energy Share (Total Sum)")
-        fig_bottom = px.bar(bottom_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity')
+        fig_bottom = px.bar(bottom_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
         st.plotly_chart(fig_bottom, use_container_width=True)
 
     st.subheader("📈 Renewable Energy Share Trend (Bottom 5 Countries)")
     bottom_entities = bottom_5['Entity'].tolist()
     trend_data = df[df['Entity'].isin(bottom_entities)]
-    fig_area = px.area(trend_data, x='Year', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity')
+    fig_area = px.area(trend_data, x='Year', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', labels={"Entity": "Country", "Year": "Year", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
     st.plotly_chart(fig_area, use_container_width=True)
 
 # --- Tab 3: CO2 Emissions Map ---
@@ -107,7 +107,8 @@ with tabs[2]:
         title="CO₂ Emissions (kt) by Country",
         size_max=50,
         color="Value_co2_emissions_kt_by_country",
-        color_continuous_scale="Reds"
+        color_continuous_scale="Reds",
+        labels={"Entity": "Country", "Value_co2_emissions_kt_by_country": "CO₂ Emissions (kt)"}
     )
     st.plotly_chart(fig_map, use_container_width=True)
 

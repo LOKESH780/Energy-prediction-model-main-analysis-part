@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 # Load your dataset
-df = pd.read_csv('your_dataset.csv')
+df = pd.read_csv('global-data-on-sustainable-energy.csv')
 
 # Set up Streamlit page
 st.set_page_config(page_title="Global Energy Insights", layout="wide")

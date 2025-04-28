@@ -80,57 +80,53 @@ with tabs[1]:
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("Top 5 Countries by Renewable Energy Share (Sum)")
-        fig_top = px.bar(top_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity',
-                         text_auto='.2s',
-                         labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (Sum %)"})
+        st.subheader("Top 5 Countries by Renewable Energy Share (Total Sum)")
+        fig_top = px.bar(top_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', 
+                         labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
         st.plotly_chart(fig_top, use_container_width=True)
     with col2:
-        st.subheader("Bottom 5 Countries by Renewable Energy Share (Sum)")
-        fig_bottom = px.bar(bottom_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity',
-                            text_auto='.2s',
-                            labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (Sum %)"})
+        st.subheader("Bottom 5 Countries by Renewable Energy Share (Total Sum)")
+        fig_bottom = px.bar(bottom_5, x='Entity', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', 
+                            labels={"Entity": "Country", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
         st.plotly_chart(fig_bottom, use_container_width=True)
 
     st.subheader("📈 Renewable Energy Share Trend (Bottom 5 Countries)")
     bottom_entities = bottom_5['Entity'].tolist()
     trend_data = df[df['Entity'].isin(bottom_entities)]
-    fig_area = px.area(trend_data, x='Year', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity',
-                       labels={"Entity": "Country", "Year": "Year", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"},
-                       line_shape="linear")
-    fig_area.update_traces(mode='lines+markers')
-    fig_area.update_layout(yaxis_tickformat='.2%')
+    fig_area = px.area(trend_data, x='Year', y='Renewable_energy_share_in_the_total_final_energy_consumption', color='Entity', 
+                       labels={"Entity": "Country", "Year": "Year", "Renewable_energy_share_in_the_total_final_energy_consumption": "Renewable Share (%)"})
     st.plotly_chart(fig_area, use_container_width=True)
 
 # --- Tab 3: Electricity Access Insights ---
 with tabs[2]:
     st.header("🔌 Electricity Access Insights")
 
-    st.subheader("Global Average Access to Electricity Over Time")
+    # Line Chart for Access to Electricity over Years
+    st.subheader("Global Access to Electricity Over Years")
     if 'Year' in df.columns:
-        electricity_trend = df.groupby('Year')["Access_to_electricity_of_population"].mean().reset_index()
-        fig_electricity = px.line(electricity_trend, x='Year', y='Access_to_electricity_of_population',
-                                  labels={"Access_to_electricity_of_population": "Access to Electricity (%)"},
-                                  markers=True)
-        fig_electricity.update_traces(textposition="top center")
-        st.plotly_chart(fig_electricity, use_container_width=True)
+        access_trend = df.groupby('Year')['Access_to_electricity_of_population'].mean().reset_index()
+        fig_line = px.line(access_trend, x='Year', y='Access_to_electricity_of_population',
+                           labels={"Access_to_electricity_of_population": "Access to Electricity (%)"})
+        st.plotly_chart(fig_line, use_container_width=True)
 
-    st.subheader("Access to Electricity by Country (Latest Available Year)")
-    latest_year = df['Year'].max()
-    df_latest = df[df['Year'] == latest_year]
-    fig_map_access = px.scatter_geo(
-        df_latest,
-        locations="Entity",
-        locationmode="country names",
-        size="Access_to_electricity_of_population",
-        projection="natural earth",
-        title="Access to Electricity by Country",
-        size_max=15,
-        color="Access_to_electricity_of_population",
-        color_continuous_scale="Teal",
-        labels={"Access_to_electricity_of_population": "Electricity Access (%)"}
-    )
-    st.plotly_chart(fig_map_access, use_container_width=True)
+    # Top 5 / Bottom 5 countries by average access
+    access_avg = df.groupby('Entity')['Access_to_electricity_of_population'].mean().reset_index()
+    access_avg = access_avg.dropna(subset=['Access_to_electricity_of_population'])
+    top_5_access = access_avg.sort_values(by='Access_to_electricity_of_population', ascending=False).head(5)
+    bottom_5_access = access_avg.sort_values(by='Access_to_electricity_of_population', ascending=True).head(5)
+
+    col3, col4 = st.columns(2)
+    with col3:
+        st.subheader("Top 5 Countries by Average Electricity Access")
+        fig_top_access = px.bar(top_5_access, x='Entity', y='Access_to_electricity_of_population', color='Entity',
+                                labels={"Entity": "Country", "Access_to_electricity_of_population": "Electricity Access (%)"})
+        st.plotly_chart(fig_top_access, use_container_width=True)
+
+    with col4:
+        st.subheader("Bottom 5 Countries by Average Electricity Access")
+        fig_bottom_access = px.bar(bottom_5_access, x='Entity', y='Access_to_electricity_of_population', color='Entity',
+                                   labels={"Entity": "Country", "Access_to_electricity_of_population": "Electricity Access (%)"})
+        st.plotly_chart(fig_bottom_access, use_container_width=True)
 
 # --- Tab 4: CO2 Emissions Map ---
 with tabs[3]:
@@ -143,10 +139,10 @@ with tabs[3]:
         size="Value_co2_emissions_kt_by_country",
         projection="natural earth",
         title="CO₂ Emissions (kt) by Country",
-        size_max=40,
+        size_max=50,
         color="Value_co2_emissions_kt_by_country",
         color_continuous_scale="Reds",
-        labels={"Value_co2_emissions_kt_by_country": "CO₂ Emissions (kt)"}
+        labels={"Entity": "Country", "Value_co2_emissions_kt_by_country": "CO₂ Emissions (kt)"}
     )
     st.plotly_chart(fig_map, use_container_width=True)
 

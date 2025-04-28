@@ -119,10 +119,21 @@ with tabs[1]:
 with tabs[2]:
     st.header("🔌 Electricity Access Insights")
 
+    # Preparing data for Global Access Trend
     access_trend = df.groupby('Year')['Access_to_electricity_of_population'].mean().reset_index()
+    
     st.subheader("Global Average Access to Electricity Over Time")
-    fig_line = px.line(access_trend, x='Year', y='Access_to_electricity_of_population',
-                       labels={"Year": "Year", "Access_to_electricity_of_population": "Access to Electricity (%)"})
+    fig_line = px.line(
+        access_trend,
+        x='Year',
+        y='Access_to_electricity_of_population',
+        text='Access_to_electricity_of_population',  # <-- Adding data labels
+        labels={
+            "Year": "Year",
+            "Access_to_electricity_of_population": "Access to Electricity (%)"
+        }
+    )
+    fig_line.update_traces(textposition="top center")  # <-- Setting the position of the labels
     st.plotly_chart(fig_line, use_container_width=True)
 
     access_avg = df.groupby('Entity')['Access_to_electricity_of_population'].mean().reset_index()

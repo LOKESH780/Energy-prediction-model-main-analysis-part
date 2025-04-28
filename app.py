@@ -127,7 +127,7 @@ with tabs[2]:
         access_trend,
         x='Year',
         y='Access_to_electricity_of_population',
-        text='Access_to_electricity_of_population',  # <-- Adding data labels
+        text=access_trend['Access_to_electricity_of_population'].apply(lambda x: f"{x:.2f}"),,  # <-- Adding data labels
         labels={
             "Year": "Year",
             "Access_to_electricity_of_population": "Access to Electricity (%)"

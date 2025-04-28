@@ -28,7 +28,7 @@ rename_dict = {
     'GDP growth (annual %)': 'gdp_growth',
     'GDP per capita (current US$)': 'gdp_per_capita',
     'Population density (people per sq. km of land area)': 'Density_n_P_Km2',
-    'Land area (sq. km)': 'Land_Area_Km2'
+    'Land Area(Km2)': 'Land_Area_Km2'
 }
 df.rename(columns=rename_dict, inplace=True)
 

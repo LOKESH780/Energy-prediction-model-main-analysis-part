@@ -211,7 +211,6 @@ with tabs[4]:
     st.pyplot(fig_corr)
 
 # === Tab 6: Energy Mix & Comparisons ===
-# === Tab 6: Energy Mix & Comparisons ===
 with tabs[5]:
     st.header("🔄 Energy Mix & Comparative Visualizations")
 
@@ -247,13 +246,17 @@ with tabs[5]:
     # Line Chart: GDP vs Access to Electricity
     st.subheader("📈 GDP vs Electricity Access Over Time")
     gdp_trend = df.groupby("Year")[["gdp_per_capita", "Access_to_electricity_of_population"]].mean().reset_index()
+    gdp_melted = gdp_trend.melt(id_vars="Year", var_name="Indicator", value_name="Metric Value")
     fig_line2 = px.line(
         gdp_trend,
         x="Year",
-        y=["gdp_per_capita", "Access_to_electricity_of_population"],
+        y="Metric Value",
+        color="Indicator",
         markers=True,
+        text="Metric Value",
         labels={"value": "Metric Value", "variable": "Indicator"}
     )
+    fig_line2.update_traces(textposition="top center", texttemplate='%{text:.2f}')
     st.plotly_chart(fig_line2, use_container_width=True)
 
     # Treemap: CO2 Emissions

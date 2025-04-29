@@ -211,30 +211,61 @@ with tabs[4]:
     st.pyplot(fig_corr)
 
 # === Tab 6: Energy Mix & Comparisons ===
+# === Tab 6: Energy Mix & Comparisons ===
 with tabs[5]:
     st.header("🔄 Energy Mix & Comparative Visualizations")
 
-    st.subheader("Electricity Source Mix")
+    # Pie Chart: Electricity Source Mix
+    st.subheader("⚡ Electricity Source Mix")
     mix = df_year[['Electricity_from_fossil_fuels_TWh', 'Electricity_from_nuclear_TWh', 'Electricity_from_renewables_TWh']].sum()
-    fig_pie = px.pie(names=mix.index, values=mix.values, hole=0.4)
+    fig_pie = px.pie(
+        names=mix.index,
+        values=mix.values,
+        hole=0.4,
+        title="Total Electricity Production by Source",
+    )
+    fig_pie.update_traces(textinfo='label+percent', pull=[0.05, 0, 0], textfont_size=14)
     st.plotly_chart(fig_pie, use_container_width=True)
 
-    st.subheader("Fossil vs Low-Carbon Electricity")
+    # Donut Chart: Fossil vs Low-Carbon
+    st.subheader("🌀 Fossil vs Low-Carbon Electricity")
     low_carbon = df_year['Low_carbon_electricity_electricity'].mean()
     donut_df = pd.DataFrame({
         "Source": ["Fossil Fuels", "Low Carbon"],
         "Share": [100 - low_carbon, low_carbon]
     })
-    fig_donut = px.pie(donut_df, names="Source", values="Share", hole=0.4)
+    fig_donut = px.pie(
+        donut_df,
+        names="Source",
+        values="Share",
+        hole=0.5,
+        title="Average Electricity Type Share (%)"
+    )
+    fig_donut.update_traces(textinfo='label+percent', textfont_size=14)
     st.plotly_chart(fig_donut, use_container_width=True)
 
-    st.subheader("GDP vs Electricity Access Over Time")
+    # Line Chart: GDP vs Access to Electricity
+    st.subheader("📈 GDP vs Electricity Access Over Time")
     gdp_trend = df.groupby("Year")[["gdp_per_capita", "Access_to_electricity_of_population"]].mean().reset_index()
-    fig_line2 = px.line(gdp_trend, x="Year", y=["gdp_per_capita", "Access_to_electricity_of_population"])
+    fig_line2 = px.line(
+        gdp_trend,
+        x="Year",
+        y=["gdp_per_capita", "Access_to_electricity_of_population"],
+        markers=True,
+        labels={"value": "Metric Value", "variable": "Indicator"}
+    )
     st.plotly_chart(fig_line2, use_container_width=True)
 
-    st.subheader("CO₂ Emissions Treemap")
+    # Treemap: CO2 Emissions
+    st.subheader("🌍 CO₂ Emissions Treemap by Country")
     treemap = df_year.groupby("Entity")["Value_co2_emissions_kt_by_country"].sum().reset_index()
     treemap = treemap[treemap["Value_co2_emissions_kt_by_country"] > 0]
-    fig_tree = px.treemap(treemap, path=["Entity"], values="Value_co2_emissions_kt_by_country")
+    fig_tree = px.treemap(
+        treemap,
+        path=["Entity"],
+        values="Value_co2_emissions_kt_by_country",
+        color="Value_co2_emissions_kt_by_country",
+        color_continuous_scale="Reds",
+        title="Total CO₂ Emissions by Country"
+    )
     st.plotly_chart(fig_tree, use_container_width=True)

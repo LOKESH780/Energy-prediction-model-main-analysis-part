@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from login import login
 
+st.set_page_config(page_title="Energy Data Deep Dive", layout="wide")
+
 # === Login Logic ===
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -20,7 +22,6 @@ with col3:
         st.session_state.logged_in = False
         st.rerun()
 
-st.set_page_config(page_title="Energy Data Deep Dive", layout="wide")
 st.title("⚡ Global Energy Analytics Dashboard")
 
 # Load the CSV

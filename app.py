@@ -209,3 +209,32 @@ with tabs[4]:
     fig_corr, ax_corr = plt.subplots(figsize=(12, 8))
     sns.heatmap(corr, cmap='coolwarm', annot=True, fmt='.2f', ax=ax_corr)
     st.pyplot(fig_corr)
+
+# === Tab 6: Energy Mix & Comparisons ===
+with tabs[5]:
+    st.header("🔄 Energy Mix & Comparative Visualizations")
+
+    st.subheader("Electricity Source Mix")
+    mix = df_year[['Electricity_from_fossil_fuels_TWh', 'Electricity_from_nuclear_TWh', 'Electricity_from_renewables_TWh']].sum()
+    fig_pie = px.pie(names=mix.index, values=mix.values, hole=0.4)
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+    st.subheader("Fossil vs Low-Carbon Electricity")
+    low_carbon = df_year['Low_carbon_electricity_electricity'].mean()
+    donut_df = pd.DataFrame({
+        "Source": ["Fossil Fuels", "Low Carbon"],
+        "Share": [100 - low_carbon, low_carbon]
+    })
+    fig_donut = px.pie(donut_df, names="Source", values="Share", hole=0.4)
+    st.plotly_chart(fig_donut, use_container_width=True)
+
+    st.subheader("GDP vs Electricity Access Over Time")
+    gdp_trend = df.groupby("Year")[["gdp_per_capita", "Access_to_electricity_of_population"]].mean().reset_index()
+    fig_line2 = px.line(gdp_trend, x="Year", y=["gdp_per_capita", "Access_to_electricity_of_population"])
+    st.plotly_chart(fig_line2, use_container_width=True)
+
+    st.subheader("CO₂ Emissions Treemap")
+    treemap = df_year.groupby("Entity")["Value_co2_emissions_kt_by_country"].sum().reset_index()
+    treemap = treemap[treemap["Value_co2_emissions_kt_by_country"] > 0]
+    fig_tree = px.treemap(treemap, path=["Entity"], values="Value_co2_emissions_kt_by_country")
+    st.plotly_chart(fig_tree, use_container_width=True)

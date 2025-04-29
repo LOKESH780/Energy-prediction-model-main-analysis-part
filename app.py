@@ -55,7 +55,7 @@ with tabs[0]:
     st.header("📌 Business KPIs Overview")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Average Access to Electricity", f"{df['Access_to_electricity_of_population'].mean():.2f}%")
+        st.metric("Average Access to Electricity", f"{df_year['Access_to_electricity_of_population'].mean():.2f}%")
     with col2:
         st.metric("Average Renewable Share", f"{df['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
     with col3:

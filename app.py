@@ -65,7 +65,7 @@ if selected_entity != 'All':
     df_year = df_year[df_year['Entity'] == selected_entity]
 
 # Tabs
-tabs = st.tabs(["Overview KPIs", "Renewable Energy Insights", "Electricity Access Insights", "CO2 Emissions Map", "Correlation Heatmap"])
+tabs = st.tabs(["Overview KPIs", "Renewable Energy Insights", "Electricity Access Insights", "CO2 Emissions Map", "Correlation Heatmap","Energy Mix & Comparisons"])
 
 # --- Tab 1: Overview KPIs ---
 with tabs[0]:

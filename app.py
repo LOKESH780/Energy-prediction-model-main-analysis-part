@@ -3,6 +3,22 @@ import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
+from login import login
+
+# === Login Logic ===
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    login()
+    st.stop()
+
+# === Logout Button on Top-Right ===
+col1, col2, col3 = st.columns([6, 1, 1])
+with col3:
+    if st.button("🚪 Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
 
 st.set_page_config(page_title="Energy Data Deep Dive", layout="wide")
 st.title("⚡ Global Energy Analytics Dashboard")

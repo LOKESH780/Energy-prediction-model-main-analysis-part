@@ -57,20 +57,20 @@ with tabs[0]:
     with col1:
         st.metric("Average Access to Electricity", f"{df_year['Access_to_electricity_of_population'].mean():.2f}%")
     with col2:
-        st.metric("Average Renewable Share", f"{df_year['Renewable_energy_share_in_the_total_final_energy_consumption'].mean():.2f}%")
+        st.metric("Total Renewable Share", f"{df_year['Renewable_energy_share_in_the_total_final_energy_consumption'].sum():.2f}%")
     with col3:
         st.metric("Total CO₂ Emissions", f"{df_year['Value_co2_emissions_kt_by_country'].sum() / 1e3:.2f}M kt")
     col4, col5, col6 = st.columns(3)
     with col4:
-        st.metric("Average GDP per Capita", f"${df_year['gdp_per_capita'].mean():,.0f}")
+        st.metric("Total GDP per Capita", f"${df_year['gdp_per_capita'].sum():,.0f}")
     with col5:
-        st.metric("Average Energy Intensity", f"{df_year['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].mean():.2f} MJ/$")
+        st.metric("Total Energy Intensity", f"{df_year['Energy_intensity_level_of_primary_energy_MJ_2017_PPP_GDP'].sum():.2f} MJ/$")
     with col6:
         total_countries = df_year['Entity'].nunique()
         st.metric("Total Countries", f"{total_countries}")
     col7, col8, col9 = st.columns(3)
     with col7:
-        st.metric("Average Renewable Capacity Per Capita", f"{df_year['Renewable_electricity_generating_capacity_per_capita'].mean():.2f}")
+        st.metric("Total Renewable Capacity Per Capita", f"{df_year['Renewable_electricity_generating_capacity_per_capita'].sum():.2f}")
     with col8:
         st.metric("Average GDP Growth", f"{df_year['gdp_growth'].mean():.2f}%")
     with col9:

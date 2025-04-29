@@ -254,9 +254,9 @@ with tabs[5]:
         color="Indicator",
         markers=True,
         text="Metric Value",
-        labels={"value": "Metric Value", "variable": "Indicator"}
+        labels={"Metric_Value": "Value", "Indicator": "Metric"}
     )
-    fig_line2.update_traces(textposition="top center", texttemplate='%{text:.2f}')
+    fig_line2.update_traces(texttemplate='%{text:.2f}', textposition="top center")
     st.plotly_chart(fig_line2, use_container_width=True)
 
     # Treemap: CO2 Emissions

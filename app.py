@@ -154,8 +154,8 @@ with tabs[2]:
     st.plotly_chart(fig_line, use_container_width=True)
 
     access_total = df.groupby('Entity')['Access_to_electricity_of_population'].sum().reset_index()
-    top_5_access = access_avg.sort_values(by='Access_to_electricity_of_population', ascending=False).head(5)
-    bottom_5_access = access_avg.sort_values(by='Access_to_electricity_of_population', ascending=True).head(5)
+    top_5_access = access_total.sort_values(by='Access_to_electricity_of_population', ascending=False).head(5)
+    bottom_5_access = access_total.sort_values(by='Access_to_electricity_of_population', ascending=True).head(5)
 
     col3, col4 = st.columns(2)
     with col3:

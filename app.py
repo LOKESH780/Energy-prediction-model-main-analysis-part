@@ -245,16 +245,25 @@ with tabs[5]:
 
     # Line Chart: GDP vs Access to Electricity
     st.subheader("📈 GDP vs Electricity Access Over Time")
+    # Step 1: Group and average data
     gdp_trend = df.groupby("Year")[["gdp_per_capita", "Access_to_electricity_of_population"]].mean().reset_index()
-    gdp_melted = gdp_trend.melt(id_vars="Year", var_name="Indicator", value_name="Metric Value")
-    fig_line2 = px.line(
+    # Step 2: Melt the DataFrame to long format
+    gdp_melted = pd.melt(
         gdp_trend,
+        id_vars="Year",
+        value_vars=["gdp_per_capita", "Access_to_electricity_of_population"],
+        var_name="Indicator",
+        value_name="Value"
+    )
+    # Step 3: Plot with labels
+    fig_line2 = px.line(
+        gdp_melted,
         x="Year",
-        y="Metric Value",
+        y="Value",
         color="Indicator",
         markers=True,
-        text="Metric Value",
-        labels={"Metric_Value": "Value", "Indicator": "Metric"}
+        text="Value",
+        labels={"Value": "Metric Value", "Indicator": "Metric"}
     )
     fig_line2.update_traces(texttemplate='%{text:.2f}', textposition="top center")
     st.plotly_chart(fig_line2, use_container_width=True)
